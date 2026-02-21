@@ -244,10 +244,10 @@ kvmd:
     resolution:
       default: 1280x720
 ```
-
+Remove /etc/kvmd/override.d/atx.yaml (if present)
 ---
 
-## ALL CHANGES in one copy/pacte
+## ALL CHANGES in one copy/paste
 
 
 ```bash
