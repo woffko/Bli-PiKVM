@@ -210,7 +210,7 @@ Wants=kvmd-main.service
 # Remove this line or set to 0 if you need kvmd-main (OLED) to remain running.
 # Environment=STOP_KVMD_MAIN=1
 
-ExecStartPre=/usr/local/sbin/kvmd-prestart-gpio.sh
+ExecStartPre=+/usr/local/sbin/kvmd-prestart-gpio.sh
 Restart=always
 RestartSec=2
 ```
@@ -339,7 +339,7 @@ Wants=kvmd-main.service
 # Uncomment the next line to enable:
 # Environment=STOP_KVMD_MAIN=1
 
-ExecStartPre=/usr/local/sbin/kvmd-prestart-gpio.sh
+ExecStartPre=+/usr/local/sbin/kvmd-prestart-gpio.sh
 Restart=always
 RestartSec=2
 EOF
