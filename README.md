@@ -125,13 +125,10 @@ kvmd:
 Thanks to [@srepac](https://github.com/srepac).
 
 ## Configure ATX Controller (ALTERNATIVE)
-Below is a GitHub-ready English summary with the **script file**, the **systemd drop-in override**, and the **KVMD YAML** you provided.
-
----
 
 ## Summary
 
-On **BliKVM v4 (H616 / Mango Pi MCore)**, GPIO lines used for ATX control/status are often exported and held by **sysfs** (e.g. by the vendor `kvmd-main` controller/OLED service). When KVMD is configured to use the native **ATX GPIO plugin** (`kvmd.atx.type: gpio`), KVMD requests these lines via **libgpiod** and fails if sysfs already owns them, typically with:
+On **BliKVM v4 (H616 / Mango Pi MCore)**, GPIO lines used for ATX control/status are exported and held by `kvmd-main` controller/OLED service. When KVMD is configured to use the native **ATX GPIO plugin** (`kvmd.atx.type: gpio`), KVMD requests these lines via **libgpiod** and fails if sysfs already owns them, typically with:
 
 * `OSError: [Errno 16] Device or resource busy`
 
