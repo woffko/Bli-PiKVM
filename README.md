@@ -274,13 +274,14 @@ ALL CHANGES in one copy/pacte
 ```bash
 # Apply all changes in one shot:
 # - Install kvmd pre-start GPIO cleanup script
-# - Install systemd drop-in override for kvmd.service
-# - Backup and write /etc/kvmd/override.yaml (KVMD config snippet you provided)
+# - Install systemd drop-in override for kvmd.service (ExecStartPre runs as root)
+# - Backup and write /etc/kvmd/override.yaml (UNCHANGED)
+# - Remove /etc/kvmd/override.d/atx.yaml (if present)
 # - Reload systemd + restart kvmd
 
 set -euo pipefail
 
-echo "[1/5] Install pre-start script..."
+echo "[1/6] Install pre-start script..."
 sudo tee /usr/local/sbin/kvmd-prestart-gpio.sh >/dev/null <<'SH'
 #!/bin/bash
 set -euo pipefail
@@ -327,7 +328,7 @@ SH
 
 sudo chmod +x /usr/local/sbin/kvmd-prestart-gpio.sh
 
-echo "[2/5] Install systemd drop-in override for kvmd.service..."
+echo "[2/6] Install systemd drop-in override for kvmd.service..."
 sudo mkdir -p /etc/systemd/system/kvmd.service.d
 sudo tee /etc/systemd/system/kvmd.service.d/override.conf >/dev/null <<'EOF'
 [Unit]
@@ -339,12 +340,21 @@ Wants=kvmd-main.service
 # Uncomment the next line to enable:
 # Environment=STOP_KVMD_MAIN=1
 
+# Run ExecStartPre as root even if kvmd.service uses User=kvmd
 ExecStartPre=+/usr/local/sbin/kvmd-prestart-gpio.sh
 Restart=always
 RestartSec=2
 EOF
 
-echo "[3/5] Backup and write /etc/kvmd/override.yaml..."
+echo "[3/6] Remove /etc/kvmd/override.d/atx.yaml (if present)..."
+if [[ -f /etc/kvmd/override.d/atx.yaml ]]; then
+  sudo rm -f /etc/kvmd/override.d/atx.yaml
+  echo "Removed /etc/kvmd/override.d/atx.yaml"
+else
+  echo "No /etc/kvmd/override.d/atx.yaml found"
+fi
+
+echo "[4/6] Backup and write /etc/kvmd/override.yaml..."
 if [[ -f /etc/kvmd/override.yaml ]]; then
   ts="$(date +%Y%m%d-%H%M%S)"
   sudo cp -a /etc/kvmd/override.yaml "/etc/kvmd/override.yaml.bak.${ts}"
@@ -373,11 +383,12 @@ kvmd:
       default: 1280x720
 YAML
 
-echo "[4/5] Reload systemd and restart kvmd..."
+echo "[5/6] Reload systemd and restart kvmd..."
 sudo systemctl daemon-reload
 sudo systemctl restart kvmd
 
-echo "[5/5] Show status and GPIO ownership..."
+echo "[6/6] Show status, drop-ins, and GPIO ownership..."
+sudo systemctl show kvmd -p DropInPaths --no-pager || true
 sudo systemctl status kvmd --no-pager -l || true
 gpioinfo /dev/gpiochip0 | egrep -n 'line[[:space:]]+(228|272|233|234):' || true
 
