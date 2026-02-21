@@ -250,26 +250,8 @@ kvmd:
 
 ---
 
-## Notes / Diagnostics
+## ALL CHANGES in one copy/pacte
 
-* If `gpioinfo /dev/gpiochip0` shows consumers like `"sysfs" [used]` on the ATX lines (228/272/233/234), KVMD ATX GPIO will not be able to claim them via libgpiod.
-* After applying the pre-start hook, check ownership:
-
-  ```bash
-  gpioinfo /dev/gpiochip0 | egrep -n 'line[[:space:]]+(228|272|233|234):'
-  ```
-* If `kvmd-main.service` continuously re-exports GPIOs, enable:
-
-  ```ini
-  Environment=STOP_KVMD_MAIN=1
-  ```
-
-  (This may disable OLED/vendor functions if they depend on `kvmd-main`.)
-
----
-
-
-ALL CHANGES in one copy/pacte
 
 ```bash
 # Apply all changes in one shot:
